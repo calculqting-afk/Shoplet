@@ -4,7 +4,8 @@ const Shoplet = (() => {
     users: "shoplet_users",
     session: "shoplet_session",
     cart: "shoplet_cart",
-    orders: "shoplet_orders"
+    orders: "shoplet_orders",
+    authMigration: "shoplet_auth_no_demo_migrated"
   };
 
   const statusFlow = [
@@ -16,7 +17,11 @@ const Shoplet = (() => {
     "Delivered"
   ];
 
-  // Product and account seed data are created once, then kept in LocalStorage.
+// local storage functions
+// local storage functions
+// local storage functions
+// local storage functions
+// local storage functions
   const defaultProducts = [
     {
       id: "p-1001",
@@ -176,24 +181,7 @@ const Shoplet = (() => {
     }
   ];
 
-  const defaultUsers = [
-    {
-      id: "u-admin",
-      name: "Shoplet Staff",
-      email: "admin@shoplet.local",
-      password: "admin123",
-      role: "staff",
-      joinedAt: new Date().toISOString()
-    },
-    {
-      id: "u-customer",
-      name: "Demo Customer",
-      email: "customer@shoplet.local",
-      password: "customer123",
-      role: "customer",
-      joinedAt: new Date().toISOString()
-    }
-  ];
+  const defaultUsers = [];
 
   function read(key, fallback) {
     try {
@@ -217,6 +205,11 @@ const Shoplet = (() => {
 
     if (!localStorage.getItem(keys.users)) {
       write(keys.users, defaultUsers);
+    }
+
+    if (!localStorage.getItem(keys.authMigration)) {
+      removeDemoUsers();
+      localStorage.setItem(keys.authMigration, "true");
     }
 
     if (!localStorage.getItem(keys.orders)) {
@@ -266,6 +259,21 @@ const Shoplet = (() => {
 
   function setUsers(users) {
     write(keys.users, users);
+  }
+
+  function removeDemoUsers() {
+    const demoEmails = ["admin@shoplet.local", "customer@shoplet.local"];
+    const users = getUsers();
+    const filteredUsers = users.filter((user) => !demoEmails.includes(user.email?.toLowerCase()));
+    const session = getSession();
+
+    if (filteredUsers.length !== users.length) {
+      setUsers(filteredUsers);
+    }
+
+    if (session && demoEmails.includes(session.email?.toLowerCase())) {
+      localStorage.removeItem(keys.session);
+    }
   }
 
   function getSession() {

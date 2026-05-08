@@ -1,7 +1,15 @@
+//Input Validation
+//Input Validation
+//Input Validation
+//Input Validation
+//Input Validation
+//Input Validation
+//Input Validation
+
+
 document.addEventListener("DOMContentLoaded", () => {
   bindLoginForm();
   bindRegisterForm();
-  bindRolePresets();
 });
 
 function bindLoginForm() {
@@ -53,7 +61,7 @@ function bindRegisterForm() {
       name: data.get("name"),
       email: data.get("email"),
       password,
-      role: "customer"
+      role: data.get("role")
     });
 
     if (!result.ok) {
@@ -63,29 +71,6 @@ function bindRegisterForm() {
     }
 
     Shoplet.setSession(result.user);
-    window.location.href = "explore.html";
-  });
-}
-
-function bindRolePresets() {
-  const email = document.getElementById("email");
-  const password = document.getElementById("password");
-  const customer = document.getElementById("roleCustomer");
-  const staff = document.getElementById("roleStaff");
-
-  if (!email || !password || !customer || !staff) return;
-
-  customer.addEventListener("change", () => {
-    if (customer.checked) {
-      email.value = "customer@shoplet.local";
-      password.value = "customer123";
-    }
-  });
-
-  staff.addEventListener("change", () => {
-    if (staff.checked) {
-      email.value = "admin@shoplet.local";
-      password.value = "admin123";
-    }
+    window.location.href = result.user.role === "staff" ? "admin/dashboard.html" : "explore.html";
   });
 }

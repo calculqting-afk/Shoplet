@@ -1,15 +1,16 @@
-# Shoplet
+Shoplet – Online Order List Processing System
 
-Shoplet is a static Bootstrap 5 online order list processing system. It uses LocalStorage for products, cart items, login sessions, checkout orders, tracking history, and admin order updates.
+Description:
+Shoplet is a simple web-based system made using HTML, CSS, and JavaScript. It helps users manage customer orders easily.
 
-Open `index.html` in a browser to start.
+The system can:
 
-Demo accounts:
+-Add customer orders
+-Edit and delete orders
+-Search orders using Linear Search
+-Sort orders
+-Check user input for errors
+-Save data using localStorage
 
-- Customer: `customer@shoplet.local` / `customer123`
-- Staff: `admin@shoplet.local` / `admin123`
+This project uses arrays, searching and sorting algorithms, input validation, and browser storage to process and manage order lists in a simple and user-friendly way.
 
-Main flows:
-
-- Customer: landing page, login/register, product search/filter/sort, cart, checkout, order history, tracking, profile.
-- Staff: dashboard statistics, order processing, inventory management, and category analytics.

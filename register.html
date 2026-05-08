@@ -17,8 +17,15 @@
       Shoplet
     </a>
     <h1>Create account</h1>
-    <p>Register as a customer to start ordering.</p>
+    <p>Create a customer or staff account.</p>
     <form class="stacked-form" id="registerForm">
+      <div>
+        <label class="form-label" for="role">Account Type</label>
+        <select class="form-select" id="role" name="role" required>
+          <option value="customer">Customer</option>
+          <option value="staff">Staff</option>
+        </select>
+      </div>
       <div>
         <label class="form-label" for="name">Full Name</label>
         <input class="form-control" id="name" name="name" required>

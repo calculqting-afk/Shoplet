@@ -85,6 +85,7 @@ img {
   color: var(--shoplet-ink);
   font-weight: 900;
   letter-spacing: 0;
+  font-size: 1.50rem;
 }
 
 .brand-mark span {

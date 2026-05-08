@@ -27,11 +27,11 @@ function ensureLoginReminderModal() {
             <form id="quickLoginForm" class="stacked-form">
               <div>
                 <label class="form-label" for="quickEmail">Email</label>
-                <input class="form-control" id="quickEmail" name="email" type="email" value="customer@shoplet.local" required>
+              <input class="form-control" id="quickEmail" name="email" type="email" required>
               </div>
               <div>
                 <label class="form-label" for="quickPassword">Password</label>
-                <input class="form-control" id="quickPassword" name="password" type="password" value="customer123" required>
+              <input class="form-control" id="quickPassword" name="password" type="password" required>
               </div>
               <input type="hidden" name="role" value="customer">
               <div class="alert alert-danger d-none" id="quickLoginAlert"></div>

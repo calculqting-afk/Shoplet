@@ -1,3 +1,10 @@
+// Array Manipulation and Processing
+// Array Manipulation and Processing
+// Array Manipulation and Processing
+// Array Manipulation and Processing
+// Array Manipulation and Processing
+
+
 document.addEventListener("DOMContentLoaded", () => {
   if (document.querySelector("[data-orders-page]")) {
     Shoplet.requireRole(["customer"]);

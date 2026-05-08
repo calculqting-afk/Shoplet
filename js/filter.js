@@ -75,11 +75,7 @@ function renderProducts(state) {
   const count = document.getElementById("productCount");
   if (!grid) return;
 
-  let products = Shoplet.getProducts().filter((product) => {
-    const matchesCategory = state.category === "All" || product.category === state.category;
-    const text = `${product.name} ${product.category} ${product.description}`.toLowerCase();
-    return matchesCategory && text.includes(state.search);
-  });
+  let products = linearSearchProducts(Shoplet.getProducts(), state);
 
   products = sortProducts(products, state.sort);
 
@@ -107,6 +103,34 @@ function renderProducts(state) {
   `).join("");
 }
 
+
+// Linear search
+// Linear search
+// Linear search
+// Linear search
+function linearSearchProducts(products, state) {
+  const matches = [];
+
+  // Linear search: check each product one by one against category and search text.
+  for (let index = 0; index < products.length; index += 1) {
+    const product = products[index];
+    const matchesCategory = state.category === "All" || product.category === state.category;
+    const text = `${product.name} ${product.category} ${product.description}`.toLowerCase();
+
+    if (matchesCategory && text.includes(state.search)) {
+      matches.push(product);
+    }
+  }
+
+  return matches;
+}
+
+
+// Sorting algorithm
+// Sorting algorithm
+// Sorting algorithm
+// Sorting algorithm
+// Sorting algorithm
 function sortProducts(products, sortBy) {
   const sorted = [...products];
 
