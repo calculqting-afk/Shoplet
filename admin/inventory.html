@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventory | Shoplet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="../css/style.css" rel="stylesheet">
+  <link href="../css/admin.css" rel="stylesheet">
+  <link href="../css/responsive.css" rel="stylesheet">
+  <link href="../css/animations.css" rel="stylesheet">
+</head>
+<body class="admin-body" data-admin-page="inventory">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a class="brand-mark" href="dashboard.html">
+        <span><i class="bi bi-bag-check-fill"></i></span>
+        Shoplet
+      </a>
+      <nav class="admin-nav" aria-label="Admin navigation">
+        <a href="dashboard.html"><i class="bi bi-speedometer2"></i>Dashboard</a>
+        <a href="orders.html"><i class="bi bi-receipt"></i>Orders</a>
+        <a class="active" href="inventory.html"><i class="bi bi-box-seam"></i>Inventory</a>
+        <a href="analytics.html"><i class="bi bi-graph-up"></i>Analytics</a>
+        <button data-logout data-redirect="../index.html"><i class="bi bi-box-arrow-right"></i>Logout</button>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div>
+          <h1>Product Inventory</h1>
+          <p>Add products, remove listings, and update stock counts.</p>
+        </div>
+      </header>
+
+      <div class="row g-4">
+        <div class="col-12 col-xl-4">
+          <form class="admin-panel stacked-form" id="productForm">
+            <h2>Add Product</h2>
+            <div>
+              <label class="form-label" for="productName">Product Name</label>
+              <input class="form-control" id="productName" name="name" required>
+            </div>
+            <div>
+              <label class="form-label" for="productCategory">Category</label>
+              <select class="form-select" id="productCategory" name="category" required>
+                <option>Shoes</option>
+                <option>Clothes</option>
+                <option>Slippers</option>
+                <option>Bags</option>
+                <option>Accessories</option>
+                <option>Electronics</option>
+              </select>
+            </div>
+            <div class="row g-3">
+              <div class="col-6">
+                <label class="form-label" for="productPrice">Price</label>
+                <input class="form-control" id="productPrice" name="price" type="number" min="1" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label" for="productStock">Stock</label>
+                <input class="form-control" id="productStock" name="stock" type="number" min="0" required>
+              </div>
+            </div>
+            <div>
+              <label class="form-label" for="productRating">Rating</label>
+              <input class="form-control" id="productRating" name="rating" type="number" min="1" max="5" step="0.1" value="4.5" required>
+            </div>
+            <div>
+              <label class="form-label" for="productImage">Image URL</label>
+              <input class="form-control" id="productImage" name="image" type="url" placeholder="https://...">
+            </div>
+            <div>
+              <label class="form-label" for="productDescription">Description</label>
+              <textarea class="form-control" id="productDescription" name="description" rows="3"></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">
+              <i class="bi bi-plus-circle"></i>
+              Add Product
+            </button>
+          </form>
+        </div>
+
+        <div class="col-12 col-xl-8">
+          <section class="admin-panel">
+            <h2>Current Products</h2>
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Rating</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/admin.js"></script>
+  <script src="../js/transitions.js"></script>
+</body>
+</html>
