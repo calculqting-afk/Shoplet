@@ -150,11 +150,13 @@ function sortProducts(products, sortBy) {
 }
 
 function productCard(product, compact = false) {
+  const isOutOfStock = Number(product.stock) <= 0;
+
   return `
     <article class="product-card ${compact ? "featured-card" : ""}">
       <div class="product-media">
         <img src="${product.image}" alt="${product.name}">
-        <span class="sale-badge">${product.badge}</span>
+        <span class="sale-badge">${isOutOfStock ? "Out of Stock" : product.badge}</span>
       </div>
       <div class="product-body">
         <div class="product-meta">
@@ -165,16 +167,16 @@ function productCard(product, compact = false) {
         <p>${product.description}</p>
         <div class="product-footer">
           <strong>${Shoplet.money(product.price)}</strong>
-          <span>${product.stock} left</span>
+          <span>${isOutOfStock ? "Out of stock" : `${product.stock} left`}</span>
         </div>
         <div class="product-actions">
-          <button class="btn btn-outline-primary" data-add-cart data-product-id="${product.id}">
+          <button class="btn btn-outline-primary" data-add-cart data-product-id="${product.id}" ${isOutOfStock ? "disabled" : ""}>
             <i class="bi bi-cart-plus"></i>
             Add
           </button>
-          <button class="btn btn-primary" data-buy-now data-product-id="${product.id}">
+          <button class="btn btn-primary" data-buy-now data-product-id="${product.id}" ${isOutOfStock ? "disabled" : ""}>
             <i class="bi bi-lightning-charge"></i>
-            Buy Now
+            ${isOutOfStock ? "Sold Out" : "Buy Now"}
           </button>
         </div>
       </div>

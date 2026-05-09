@@ -8,6 +8,44 @@ const ShopletCart = (() => {
     updateCartBadge();
   }
 
+  function availableStock(productId) {
+    const product = Shoplet.getProduct(productId);
+    return product ? Math.max(0, Number(product.stock) || 0) : 0;
+  }
+
+  function limitQuantity(productId, quantity) {
+    const stock = availableStock(productId);
+    if (stock <= 0) return 0;
+    return Math.min(Math.max(1, Number(quantity) || 1), stock);
+  }
+
+  function normalizeStock(notify = false) {
+    let changed = false;
+
+    const cart = getCart()
+      .map((item) => {
+        const product = Shoplet.getProduct(item.productId);
+        if (!product || availableStock(item.productId) <= 0) {
+          changed = true;
+          return null;
+        }
+
+        const quantity = limitQuantity(item.productId, item.quantity);
+        if (quantity !== item.quantity) changed = true;
+        return { ...item, quantity };
+      })
+      .filter(Boolean);
+
+    if (changed) {
+      saveCart(cart);
+      if (notify) {
+        showToast("Cart quantities were adjusted to available stock.", "warning");
+      }
+    }
+
+    return cart;
+  }
+
   function requireCustomer() {
     const session = Shoplet.getSession();
 
@@ -25,19 +63,31 @@ const ShopletCart = (() => {
     const product = Shoplet.getProduct(productId);
     if (!product) return false;
 
+    const stock = availableStock(productId);
+    if (stock <= 0) {
+      showToast(`${product.name} is out of stock.`, "warning");
+      return false;
+    }
+
     const cart = getCart();
     const item = cart.find((entry) => entry.productId === productId);
+    const currentQuantity = item ? item.quantity : 0;
+    const requestedQuantity = currentQuantity + Math.max(1, Number(quantity) || 1);
+    const nextQuantity = Math.min(requestedQuantity, stock);
 
     if (item) {
-      item.quantity += quantity;
+      item.quantity = nextQuantity;
     } else {
-      cart.push({ productId, quantity });
+      cart.push({ productId, quantity: nextQuantity });
     }
 
     saveCart(cart);
 
     if (notify) {
-      showToast(`${product.name} added to cart.`);
+      const message = requestedQuantity > stock
+        ? `Only ${stock} ${product.name} available. Cart was limited to stock.`
+        : `${product.name} added to cart.`;
+      showToast(message, requestedQuantity > stock ? "warning" : "success");
     }
 
     return true;
@@ -48,7 +98,21 @@ const ShopletCart = (() => {
   }
 
   function update(productId, quantity) {
-    const nextQuantity = Math.max(1, Number(quantity) || 1);
+    const product = Shoplet.getProduct(productId);
+    if (!product) return;
+
+    const nextQuantity = limitQuantity(productId, quantity);
+
+    if (nextQuantity <= 0) {
+      remove(productId);
+      showToast(`${product.name} is out of stock and was removed from cart.`, "warning");
+      return;
+    }
+
+    if (Number(quantity) > nextQuantity) {
+      showToast(`Only ${nextQuantity} ${product.name} available.`, "warning");
+    }
+
     const cart = getCart().map((item) => {
       if (item.productId === productId) {
         return { ...item, quantity: nextQuantity };
@@ -66,7 +130,7 @@ const ShopletCart = (() => {
 
   function detailedItems() {
     // Join cart quantities with the current product catalog.
-    return getCart()
+    return normalizeStock()
       .map((item) => {
         const product = Shoplet.getProduct(item.productId);
         if (!product) return null;
@@ -97,6 +161,8 @@ const ShopletCart = (() => {
   return {
     getCart,
     saveCart,
+    availableStock,
+    normalizeStock,
     add,
     remove,
     update,
@@ -148,14 +214,14 @@ function renderCartPage() {
       <div class="cart-line-body">
         <div>
           <h2>${item.name}</h2>
-          <p>${item.category} <span class="text-muted">/ ${Shoplet.money(item.price)}</span></p>
+          <p>${item.category} <span class="text-muted">/ ${Shoplet.money(item.price)} / ${item.stock} available</span></p>
         </div>
         <div class="quantity-control" aria-label="Quantity controls">
           <button class="btn btn-light" data-cart-minus="${item.id}" aria-label="Decrease quantity">
             <i class="bi bi-dash"></i>
           </button>
-          <input class="form-control" type="number" min="1" value="${item.quantity}" data-cart-qty="${item.id}" aria-label="${item.name} quantity">
-          <button class="btn btn-light" data-cart-plus="${item.id}" aria-label="Increase quantity">
+          <input class="form-control" type="number" min="1" max="${item.stock}" value="${item.quantity}" data-cart-qty="${item.id}" aria-label="${item.name} quantity">
+          <button class="btn btn-light" data-cart-plus="${item.id}" aria-label="Increase quantity" ${item.quantity >= item.stock ? "disabled" : ""}>
             <i class="bi bi-plus"></i>
           </button>
         </div>
@@ -275,6 +341,7 @@ function bindCheckoutForm() {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
 
+    ShopletCart.normalizeStock(true);
     const items = ShopletCart.detailedItems();
     if (!items.length) {
       showToast("Your cart is empty.", "warning");
@@ -304,11 +371,13 @@ function bindCheckoutForm() {
       shipping: totals.shipping,
       total: totals.total,
       status: "Pending",
+      stockDeducted: true,
       history: [{ status: "Pending", date: new Date().toISOString() }],
       createdAt: new Date().toISOString()
     };
 
-    // Orders are saved in LocalStorage so the admin panel can read them after refresh.
+
+    Shoplet.decreaseProductStock(items);
     orders.unshift(order);
     Shoplet.setOrders(orders);
     ShopletCart.clear();

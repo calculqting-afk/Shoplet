@@ -249,6 +249,27 @@ const Shoplet = (() => {
     write(keys.products, products);
   }
 
+  function decreaseProductStock(items) {
+    const soldQuantities = items.reduce((totals, item) => {
+      const productId = item.productId || item.id;
+      totals[productId] = (totals[productId] || 0) + Number(item.quantity || 0);
+      return totals;
+    }, {});
+
+    const products = getProducts().map((product) => {
+      const soldQuantity = soldQuantities[product.id] || 0;
+      if (!soldQuantity) return product;
+
+      return {
+        ...product,
+        stock: Math.max(0, Number(product.stock) - soldQuantity)
+      };
+    });
+
+    setProducts(products);
+    return products;
+  }
+
   function getProduct(productId) {
     return getProducts().find((product) => product.id === productId);
   }
@@ -368,6 +389,11 @@ const Shoplet = (() => {
       date: new Date().toISOString()
     });
 
+    if (status === "Delivered" && !order.stockDeducted) {
+      decreaseProductStock(order.items || []);
+      order.stockDeducted = true;
+    }
+
     setOrders(orders);
     return order;
   }
@@ -384,6 +410,7 @@ const Shoplet = (() => {
     write,
     getProducts,
     setProducts,
+    decreaseProductStock,
     getProduct,
     getUsers,
     setUsers,
