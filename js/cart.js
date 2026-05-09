@@ -93,6 +93,23 @@ const ShopletCart = (() => {
     return true;
   }
 
+  function buyNow(productId) {
+    if (!requireCustomer()) return false;
+
+    const product = Shoplet.getProduct(productId);
+    if (!product) return false;
+
+    const stock = availableStock(productId);
+    if (stock <= 0) {
+      showToast(`${product.name} is out of stock.`, "warning");
+      return false;
+    }
+
+    // Buy Now checks out only the selected product, not the full saved cart.
+    saveCart([{ productId, quantity: 1 }]);
+    return true;
+  }
+
   function remove(productId) {
     saveCart(getCart().filter((item) => item.productId !== productId));
   }
@@ -164,6 +181,7 @@ const ShopletCart = (() => {
     availableStock,
     normalizeStock,
     add,
+    buyNow,
     remove,
     update,
     clear,

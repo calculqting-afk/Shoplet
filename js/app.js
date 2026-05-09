@@ -7,6 +7,11 @@ document.addEventListener("DOMContentLoaded", () => {
   updateCartBadge();
 });
 
+window.addEventListener("pageshow", () => {
+  updateSessionUI();
+  updateCartBadge();
+});
+
 function updateSessionUI() {
   const session = Shoplet.getSession();
   const nameTargets = document.querySelectorAll("[data-session-name]");
@@ -53,7 +58,7 @@ function bindGlobalProductActions() {
 
     if (buyButton) {
       event.preventDefault();
-      if (ShopletCart.add(buyButton.dataset.productId, 1, false)) {
+      if (ShopletCart.buyNow(buyButton.dataset.productId)) {
         window.location.href = "checkout.html";
       }
     }
