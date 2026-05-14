@@ -42,7 +42,7 @@ function renderAdminDashboard() {
   if (!target) return;
 
   const orders = Shoplet.getOrders().slice(0, 6);
-  target.innerHTML = orders.length ? orders.map(adminOrderRow).join("") : `
+  target.innerHTML = orders.length ? orders.map((order) => adminOrderRow(order, false)).join("") : `
     <tr>
       <td colspan="6" class="text-center text-muted py-4">No orders yet.</td>
     </tr>
@@ -74,11 +74,13 @@ function renderStatsCards(targetId) {
 
 function renderAdminOrders() {
   renderStatsCards("adminOrderStats");
+  bindAdminOrderSort();
 
   const target = document.getElementById("adminOrdersTable");
   if (!target) return;
 
-  const orders = Shoplet.getOrders();
+  const sortValue = document.getElementById("adminOrderSort")?.value || "time-newest";
+  const orders = sortAdminOrders(Shoplet.getOrders(), sortValue);
   target.innerHTML = orders.length ? orders.map((order) => `
     ${adminOrderRow(order, true)}
   `).join("") : `
@@ -95,6 +97,48 @@ function renderAdminOrders() {
       renderAdminOrders();
     });
   });
+}
+
+function bindAdminOrderSort() {
+  const select = document.getElementById("adminOrderSort");
+  if (!select || select.dataset.bound) return;
+
+  select.dataset.bound = "true";
+  select.addEventListener("change", renderAdminOrders);
+}
+
+function sortAdminOrders(orders, sortBy) {
+  const sorted = [...orders];
+
+  if (sortBy === "time-oldest") {
+    return sorted.sort((a, b) => orderTimestamp(a) - orderTimestamp(b));
+  }
+
+  if (sortBy === "product-az") {
+    return sorted.sort((a, b) => firstProductName(a).localeCompare(firstProductName(b)));
+  }
+
+  if (sortBy === "price-high") {
+    return sorted.sort((a, b) => Number(b.total || 0) - Number(a.total || 0));
+  }
+
+  if (sortBy === "price-low") {
+    return sorted.sort((a, b) => Number(a.total || 0) - Number(b.total || 0));
+  }
+
+  if (sortBy === "customer-az") {
+    return sorted.sort((a, b) => String(a.customerName || "").localeCompare(String(b.customerName || "")));
+  }
+
+  return sorted.sort((a, b) => orderTimestamp(b) - orderTimestamp(a));
+}
+
+function orderTimestamp(order) {
+  return new Date(order.createdAt || 0).getTime();
+}
+
+function firstProductName(order) {
+  return String(order.items?.[0]?.name || "").toLowerCase();
 }
 
 function adminOrderRow(order, editable = false) {

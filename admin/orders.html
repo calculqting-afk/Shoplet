@@ -39,7 +39,20 @@
       <section class="row g-3 mb-4" id="adminOrderStats"></section>
 
       <section class="admin-panel">
-        <h2>All Customer Orders</h2>
+        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-3">
+          <h2 class="mb-0">All Customer Orders</h2>
+          <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 text-muted" for="adminOrderSort">Sort</label>
+            <select class="form-select form-select-sm" id="adminOrderSort" aria-label="Sort customer orders">
+              <option value="time-newest">Latest Orders</option>
+              <option value="time-oldest">Who Bought First</option>
+              <option value="product-az">Product Name A-Z</option>
+              <option value="price-high">Price High to Low</option>
+              <option value="price-low">Price Low to High</option>
+              <option value="customer-az">Customer Name A-Z</option>
+            </select>
+          </div>
+        </div>
         <div class="table-responsive">
           <table class="table align-middle">
             <thead>
@@ -49,7 +62,7 @@
                 <th>Items</th>
                 <th>Total</th>
                 <th>Status</th>
-                <th>Date</th>
+                <th>Timestamp</th>
                 <th>Update</th>
               </tr>
             </thead>
