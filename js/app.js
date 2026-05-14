@@ -13,7 +13,7 @@ window.addEventListener("pageshow", () => {
 });
 
 function updateSessionUI() {
-  const session = Shoplet.getSession();
+  const session = getPageSession();
   const nameTargets = document.querySelectorAll("[data-session-name]");
   const roleTargets = document.querySelectorAll("[data-session-role]");
   const loginLinks = document.querySelectorAll("[data-auth-link]");
@@ -40,10 +40,40 @@ function bindLogoutButtons() {
   document.querySelectorAll("[data-logout]").forEach((button) => {
     button.addEventListener("click", (event) => {
       event.preventDefault();
-      Shoplet.logout();
+      Shoplet.logout(getLogoutRole(button));
       window.location.href = button.dataset.redirect || "index.html";
     });
   });
+}
+
+function getPageSessionRole() {
+  if (document.body.dataset.adminPage) return "staff";
+
+  const customerPages = ["explore", "profile"];
+  const isCustomerPage = customerPages.includes(document.body.dataset.page)
+    || document.body.hasAttribute("data-cart-page")
+    || document.body.hasAttribute("data-checkout-page")
+    || document.body.hasAttribute("data-orders-page")
+    || document.body.hasAttribute("data-tracking-page");
+
+  return isCustomerPage ? "customer" : null;
+}
+
+function getPageSession() {
+  const role = getPageSessionRole();
+  return role ? Shoplet.getSession(role) : Shoplet.getSession();
+}
+
+function getLogoutRole(button) {
+  if (button.dataset.logoutRole) return button.dataset.logoutRole;
+
+  const pageRole = getPageSessionRole();
+  if (pageRole) return pageRole;
+
+  if (Shoplet.getSession("customer")) return "customer";
+  if (Shoplet.getSession("staff")) return "staff";
+
+  return null;
 }
 
 function bindGlobalProductActions() {

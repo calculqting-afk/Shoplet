@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function renderAdminShell() {
-  const session = Shoplet.getSession();
+  const session = Shoplet.getSession("staff");
   document.querySelectorAll("[data-admin-name]").forEach((target) => {
     target.textContent = session?.name || "Staff";
   });
@@ -44,7 +44,7 @@ function renderAdminDashboard() {
   const orders = Shoplet.getOrders().slice(0, 6);
   target.innerHTML = orders.length ? orders.map(adminOrderRow).join("") : `
     <tr>
-      <td colspan="5" class="text-center text-muted py-4">No orders yet.</td>
+      <td colspan="6" class="text-center text-muted py-4">No orders yet.</td>
     </tr>
   `;
 }
@@ -100,7 +100,7 @@ function renderAdminOrders() {
 function adminOrderRow(order, editable = false) {
   return `
     <tr>
-      <td><strong>${order.id}</strong></td>
+      <td>${orderProductSummary(order)}</td>
       <td>${order.customerName}<br><span class="text-muted">${order.email}</span></td>
       <td>${order.items.length}</td>
       <td>${Shoplet.money(order.total)}</td>
@@ -115,6 +115,19 @@ function adminOrderRow(order, editable = false) {
       ` : ""}
     </tr>
   `;
+}
+
+function orderProductSummary(order) {
+  if (!order.items || !order.items.length) {
+    return `<span class="text-muted">No product listed</span>`;
+  }
+
+  return order.items.map((item) => `
+    <div>
+      <strong>${item.name}</strong>
+      <br><span class="text-muted">Qty: ${item.quantity}</span>
+    </div>
+  `).join("");
 }
 
 function renderInventoryPage() {

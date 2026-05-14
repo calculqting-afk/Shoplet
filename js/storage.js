@@ -1,8 +1,12 @@
+//Separate login for shoplet users and staff
+
 const Shoplet = (() => {
   const keys = {
     products: "shoplet_products",
     users: "shoplet_users",
     session: "shoplet_session",
+    customerSession: "shoplet_customer_session", //In LocalStorage for Custgomer
+    staffSession: "shoplet_staff_session", //In LocalStorage for Staff
     cart: "shoplet_cart",
     orders: "shoplet_orders",
     authMigration: "shoplet_auth_no_demo_migrated"
@@ -282,23 +286,47 @@ const Shoplet = (() => {
     write(keys.users, users);
   }
 
+  function sessionKey(role) {
+    return role === "staff" ? keys.staffSession : keys.customerSession;
+  }
+
+  function migrateLegacySession() {
+    const legacySession = read(keys.session, null);
+    if (!legacySession || !legacySession.role) return;
+
+    write(sessionKey(legacySession.role), legacySession);
+    localStorage.removeItem(keys.session);
+  }
+
   function removeDemoUsers() {
+    migrateLegacySession();
+
     const demoEmails = ["admin@shoplet.local", "customer@shoplet.local"];
     const users = getUsers();
     const filteredUsers = users.filter((user) => !demoEmails.includes(user.email?.toLowerCase()));
-    const session = getSession();
 
     if (filteredUsers.length !== users.length) {
       setUsers(filteredUsers);
     }
 
-    if (session && demoEmails.includes(session.email?.toLowerCase())) {
-      localStorage.removeItem(keys.session);
-    }
+    ["customer", "staff"].forEach((role) => {
+      const session = read(sessionKey(role), null);
+      if (session && demoEmails.includes(session.email?.toLowerCase())) {
+        localStorage.removeItem(sessionKey(role));
+      }
+    });
+
+    localStorage.removeItem(keys.session);
   }
 
-  function getSession() {
-    return read(keys.session, null);
+  function getSession(role) {
+    migrateLegacySession();
+
+    if (role) {
+      return read(sessionKey(role), null);
+    }
+
+    return read(keys.customerSession, null) || read(keys.staffSession, null);
   }
 
   function setSession(user) {
@@ -309,11 +337,22 @@ const Shoplet = (() => {
       role: user.role,
       loggedInAt: new Date().toISOString()
     };
-    write(keys.session, session);
+    write(sessionKey(user.role), session);
+    localStorage.removeItem(keys.session);
     return session;
   }
 
-  function logout() {
+  function logout(role) {
+    if (role) {
+      localStorage.removeItem(sessionKey(role));
+      return;
+    }
+
+    const session = getSession();
+    if (session) {
+      localStorage.removeItem(sessionKey(session.role));
+    }
+
     localStorage.removeItem(keys.session);
   }
 
@@ -354,7 +393,9 @@ const Shoplet = (() => {
   }
 
   function requireRole(allowedRoles, loginPath = "login.html") {
-    const session = getSession();
+    const session = allowedRoles
+      .map((role) => getSession(role))
+      .find(Boolean);
 
     if (!session || !allowedRoles.includes(session.role)) {
       window.location.href = loginPath;
