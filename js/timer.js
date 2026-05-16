@@ -15,7 +15,7 @@ function ensureLoginReminderModal() {
   if (document.getElementById("loginReminderModal")) return;
 
   document.body.insertAdjacentHTML("beforeend", `
-    <div class="modal fade" id="loginReminderModal" tabindex="-1" aria-labelledby="loginReminderLabel" aria-hidden="true">
+    <div class="modal fade shoplet-login-reminder" id="loginReminderModal" tabindex="-1" aria-labelledby="loginReminderLabel" aria-hidden="true" data-bs-backdrop="false">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shoplet-modal">
           <div class="modal-header">
@@ -44,6 +44,10 @@ function ensureLoginReminderModal() {
     </div>
   `);
 
+  const modal = document.getElementById("loginReminderModal");
+  modal.addEventListener("shown.bs.modal", releasePageScroll);
+  modal.addEventListener("hidden.bs.modal", releasePageScroll);
+
   const form = document.getElementById("quickLoginForm");
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -58,7 +62,8 @@ function ensureLoginReminderModal() {
     }
 
     alert.classList.add("d-none");
-    bootstrap.Modal.getOrCreateInstance(document.getElementById("loginReminderModal")).hide();
+    bootstrap.Modal.getOrCreateInstance(modal).hide();
+    releasePageScroll();
     updateSessionUI();
     updateCartBadge();
     showToast("You are now logged in.");

@@ -584,6 +584,14 @@ img {
   box-shadow: var(--shadow-soft);
 }
 
+.shoplet-login-reminder {
+  pointer-events: none;
+}
+
+.shoplet-login-reminder .modal-dialog {
+  pointer-events: auto;
+}
+
 .footer {
   border-top: 1px solid var(--shoplet-line);
   padding: 2rem 0;

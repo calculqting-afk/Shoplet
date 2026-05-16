@@ -164,9 +164,21 @@ function openLoginPrompt() {
   const modal = document.getElementById("loginReminderModal");
 
   if (modal && window.bootstrap) {
-    bootstrap.Modal.getOrCreateInstance(modal).show();
+    bootstrap.Modal.getOrCreateInstance(modal, {
+      backdrop: false,
+      focus: false,
+      keyboard: true
+    }).show();
+    releasePageScroll();
     return;
   }
 
   window.location.href = "login.html";
+}
+
+function releasePageScroll() {
+  document.body.classList.remove("modal-open");
+  document.body.style.removeProperty("overflow");
+  document.body.style.removeProperty("padding-right");
+  document.documentElement.style.removeProperty("overflow");
 }
