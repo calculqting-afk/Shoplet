@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!Shoplet.getSession()) {
       openLoginPrompt();
     }
-  }, 60000);
+  }, 6000);
 });
 
 function ensureLoginReminderModal() {
